@@ -1,94 +1,110 @@
+import ast
 class Calculator:
-    def __init__(self, num1, num2):
+    def __init__(self):
         # Constructor
-     
-        if not (-100 <= num1 <= 100) or not (-100 <= num2 <= 100): 
-            raise ValueError("Number must be between -100 and 100.")
-        self.num1 = num1
-        self.num2 = num2
         self.history = []
-    
-    def sum (self):
-        # Adds two numbers between -100 and 100.
-        
-        result = self.num1 + self.num2
-        self.history = self.history + [str(self.num1) + " + " + str(self.num2) + " = " + str(result)]
-        print(self.history[-1])
-        return result
-    
-    def multiply(self):
-        # Multiplies two numbers between -100 and 100.
-    
-        result = self.num1 * self.num2
-        self.history = self.history + [str(self.num1) + " * " + str(self.num2) + " = " + str(result)]
-        print(self.history[-1])
-        return result
-    
-    def subtract(self):
-        # Subtracts two numbers between -100 and 100.
-        
-        choice = input("Which number would you like it to be subtracted by (n1 or n2)? ").strip().lower()
-        if choice == "n1":
-            result = self.num2 - self.num1
-            self.history = self.history + [str(self.num2) + " - " + str(self.num1) + " = " + str(result)]
-            print(self.history[-1])
-            return result
-        elif choice == "n2":
-            result = self.num1 - self.num2
-            self.history = self.history + [str(self.num1) + " - " + str(self.num2) + " = " + str(result)]
-            print(self.history[-1])
-            return result
-        else:
-            raise ValueError("Incorrect Response.")
+        self.variables = {}
 
-    def divide(self):
-        # Divides two numbers between -100 and 100.
+    def add_history(self, entry):
+        # Helper function for history.
+        self.history.append(entry)
 
-        choice = input("Which number would you like it to be divided by (n1 or n2)? ").strip().lower()
-        if choice == "n1":
-            result = self.num2 / self.num1
-            self.history = self.history + [str(self.num2) + " / " + str(self.num1) + " = " + str(result)]
-            print(self.history[-1])
-            return result
-        elif choice == "n2":
-            result = self.num1 / self.num2
-            self.history = self.history + [str(self.num1) + " / " + str(self.num2) + " = " + str(result)]
-            print(self.history[-1])
-            return result
-        else:
-            raise ValueError("Incorrect Response.")
+    def add(self, a, b):
+        # Adds two numbers.
+        return a + b
+    
+    def subtract(self, a, b):
+        # Subtracts two numbers.
+        return a - b
+    
+    def multiply(self, a, b):
+        # Multiplies two numbers.
+        return a * b
+       
+    def divide(self, a, b):
+        # Divides two numbers.
+        if b == 0:
+            raise ZeroDivisionError("Cannot divide by 0")
+        return a / b
+    
+    def exponent(self, a, b):
+        # Raises a number to the exponent.
+        return a ** b
+    
+    def negate(self, a):
+        # Negates a number.
+        return -a
+    
+    def evaluate(self, expression):
+        # Converts expression into AST tree for logical math.
+        try:
+            tree = ast.parse(expression, mode='exec')
+            last = None
+            for node in tree.body:
+                
+                if isinstance(node, ast.Assign):
+                    var = node.targets[0].id
+                    value = self._eval(node.value)
+                    self.variables[var] = value
+                    self.add_history(f"{var} = {value}") 
+                    last = value
+                elif isinstance(node, ast.Expr):
+                    result = self._eval(node.value)
+                    self.add_history(f"{expression} = {result}") 
+                    last = result
+            return last
+        except Exception as e:
+            return str(e)
+    
+    def _eval(self, node):
+        if isinstance(node, ast.Constant):
+            return node.value
+        elif isinstance(node, ast.Name):
+            if node.id in self.variables:
+                return self.variables[node.id]
+            else:
+                raise NameError(f"Undefined Variable: {node.id}")
+        elif isinstance(node, ast.BinOp):
+            left = self._eval(node.left)
+            right = self._eval(node.right)
+
+            if isinstance(node.op, ast.Add):
+                return self.add(left, right)
             
-statement = False
-while statement == False:
-    # Main program.
+            elif isinstance(node.op, ast.Sub):
+                return self.subtract(left, right)
+            
+            elif isinstance(node.op, ast.Mult):
+                return self.multiply(left, right)
+            
+            elif isinstance(node.op , ast.Div):
+                return self.divide(left, right)
+            
+            elif isinstance(node.op, ast.Pow):
+                return self.exponent(left, right)
+            
+        elif isinstance(node, ast.UnaryOp):
+            if isinstance(node.op, ast.USub):
+                return self.negate(self._eval(node.operand))
+            elif isinstance(node.op, ast.UAdd):
+                return self._eval(node.operand)
+        raise TypeError("Invalid Expression")
+    
+    def show_history(self):
+        # Shows history
+        for i in self.history:
+            print(i)
 
-    print("Welcome to the Calculator!")
-    print("You can add, multiply, divide and subtract certain numbers in this game! All numbers will be stored for each game!")
-    num1 = int(input("Enter first number (-100 to 100): "))
-    num2 = int(input("Enter second number (-100 to 100): "))
-    obj = Calculator(num1, num2)
+# Main Method
+if __name__ == "__main__":
+    calc = Calculator()
+    print("Welcome to the Calculator! (type 'exit' to quit)")
     while True:
-        print("Enter an operation:")
-        print("1) Add the numbers\n2) Multiply the numbers\n3) Divide the numbers\n4) Subtract the numbers\n5) Print the numbers\n6) Enter new numbers\n7) Stop")
-        methodChoice = int(input("Enter your choice: "))
-        if methodChoice == 1:
-            answer = obj.sum()
-        elif methodChoice == 2:
-            answer = obj.multiply()
-        elif methodChoice == 3:
-            answer = obj.divide()
-        elif methodChoice == 4:
-            answer = obj.subtract()
-        elif methodChoice == 5:
-            print("All operations so far:")
-            for i in obj.history:
-                print(i)
-        elif methodChoice == 6:
+        exp = input("Enter expression: ")
+        
+        if exp.lower() == "exit":
             break
-        elif methodChoice == 7:
-            statement = True
-            break
-        else:
-            raise ValueError("Invalid Choice.")
-
-print("Thank you for playing!")
+        result = calc.evaluate(exp)
+        print("=", result)
+    print("\nHistory")
+    calc.show_history()
