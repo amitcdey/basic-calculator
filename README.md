@@ -19,8 +19,12 @@ This calculator supports variables, arithmetic operations, and variable evaluati
 
 The functions as of right now consist of adding, multiplying, subtracting and dividing. All history will be stored for each round until the user stops using the calculator. History can be accessed by typing in a number specified in the code. 
 
+---
+
 **Information on the Calculator:**
 This calculator uses the foundationals of Object-Oriented Programming (OOP) and is built in AST data structure in the Python library to parse data structures into a mathematical tree. Each part of the equation is seperated by it's value and evaluated recursively, allowing a safe and reliable execution instead of the eval() library in order to make sure the user only types in what is necessary to maintain privacy and efficiency.
+
+---
 
 **Examples:**
 
