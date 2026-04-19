@@ -29,11 +29,13 @@ This calculator uses the foundationals of Object-Oriented Programming (OOP) and 
 **Examples:**
 
 ***Variable Assignment:***
+
 ![Calculator Demo](calculator_variable_demo.png)
 
 
 
 ***Expression Evaluation:***
+
 ![Calculator Demo](calculator_number_demo.png)
 
 
